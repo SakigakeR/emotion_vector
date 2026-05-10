@@ -1,0 +1,29 @@
+# 情绪向量工程依赖
+# Anthropic 情绪向量实验本地复现
+
+# 深度学习框架
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+
+# 量化支持
+bitsandbytes>=0.41.0
+
+# 数据处理
+datasets>=2.14.0
+numpy>=1.24.0
+
+# 向量数据库
+faiss-cpu>=1.7.4
+
+# 文本生成管道
+sentencepiece>=0.1.99
+
+# 评估工具
+evaluate>=0.4.1
+
+# 进度条
+tqdm>=4.65.0
+
+# 可选：GPU 版本的 faiss（如果有 CUDA）
+# faiss-gpu>=1.7.4
