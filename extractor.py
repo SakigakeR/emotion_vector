@@ -49,7 +49,7 @@ def generate_emotion_stories(
     """
     # 使用 chat 格式的消息
     messages = [
-        {"role": "user", "content": f"""Write a short story (3-5 sentences) about a character experiencing {emotion}.
+        {"role": "user", "content": f"""Write a story (5-10 sentences) about a character experiencing {emotion}.
 IMPORTANT: Do NOT use the word "{emotion}" or any synonyms. Show the emotion through actions, body language, and environment only."""}
     ]
     

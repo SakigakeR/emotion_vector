@@ -66,7 +66,7 @@ def load_model_and_tokenizer(model_name: str) -> tuple:
 
 def load_emotion_vectors(model: AutoModelForCausalLM, model_id: str) -> Dict[str, torch.Tensor]:
     """
-    从 FAISS 数据库加载预计算的情绪向量
+    从向量数据库加载预计算的情绪向量
     
     Args:
         model: 语言模型
@@ -80,14 +80,15 @@ def load_emotion_vectors(model: AutoModelForCausalLM, model_id: str) -> Dict[str
     print("="*60)
     
     hidden_dim = model.config.hidden_size
-    vec_db = EmotionVectorDB(
+    
+    # 使用上下文管理器加载数据库
+    with EmotionVectorDB(
         vector_dim=hidden_dim,
         db_path=VECTOR_DB_PATH,
         meta_path=META_DATA_PATH
-    )
-    
-    # 从数据库加载
-    emotion_vectors = vec_db.load_vectors(model_id)
+    ) as vec_db:
+        # 获取指定模型的向量
+        emotion_vectors = vec_db.get_vectors(model_id)
     
     # 确保向量在正确的设备上
     for emotion in emotion_vectors:

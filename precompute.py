@@ -15,7 +15,7 @@ from config import (
     NUM_SAMPLES_PER_EMOTION, NUM_NEUTRAL_SAMPLES,
     INTERVENTION_LAYER, INTERVENTION_STRENGTH,
     VECTOR_DB_PATH, META_DATA_PATH, VICTORS_JSON_PATH,
-    MODEL_ID, USE_4BIT_QUANTIZATION
+    MODEL_ID, USE_4BIT_QUANTIZATION,MAX_NEW_TOKENS
 )
 from extractor import (
     create_quantization_config,
@@ -97,7 +97,7 @@ def generate_neutral_stories(
     
     # 使用 chat 格式的消息
     messages = [
-        {"role": "user", "content": "Write a short story (3-5 sentences) about a character doing a normal daily activity. No strong emotions."}
+        {"role": "user", "content": "Write a story (5-10 sentences) about a character doing a normal daily activity. No strong emotions."}
     ]
     
     # 使用 chat_template 编码
@@ -119,7 +119,7 @@ def generate_neutral_stories(
     for i in tqdm(range(num_samples), desc="Generating neutral stories"):
         output = generator(
             input_text,
-            max_new_tokens=150,
+            max_new_tokens=MAX_NEW_TOKENS,
             temperature=0.7,
             top_p=0.95,
             do_sample=True
@@ -204,7 +204,7 @@ def save_emotion_vectors(
     samples_per_emotion: int
 ) -> None:
     """
-    保存情绪向量到 FAISS 数据库和 JSON 文件
+    保存情绪向量到向量数据库
     
     Args:
         emotion_vectors: 情绪向量字典
@@ -217,32 +217,35 @@ def save_emotion_vectors(
     print("保存情绪向量")
     print("="*60)
     
-    # 1. 保存到 FAISS 向量数据库
     hidden_dim = model.config.hidden_size
-    vec_db = EmotionVectorDB(
+    
+    # 使用上下文管理器，自动处理加载和保存
+    with EmotionVectorDB(
         vector_dim=hidden_dim,
         db_path=VECTOR_DB_PATH,
-        meta_path=META_DATA_PATH
-    )
-    vec_db.save_vectors(emotion_vectors, model_id, layer_idx, samples_per_emotion)
-    
-    # 2. 备份到 JSON 文件
-    print(f"\n备份到 JSON 文件：{VICTORS_JSON_PATH}")
-    vectors_dict = {emotion: vec.tolist() for emotion, vec in emotion_vectors.items()}
-    with open(VICTORS_JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(vectors_dict, f, ensure_ascii=False, indent=2)
-    print(f"✅ JSON 备份完成")
-    
-    # 3. 打印保存信息
-    print("\n" + "="*60)
-    print("保存完成！")
-    print("="*60)
-    print(f"向量数据库：{VECTOR_DB_PATH}")
-    print(f"元数据文件：{META_DATA_PATH}")
-    print(f"JSON 备份：{VICTORS_JSON_PATH}")
-    print(f"模型标识：{model_id}")
-    print(f"向量维度：{hidden_dim}")
-    print(f"情绪数量：{len(emotion_vectors)}")
+        meta_path=META_DATA_PATH,
+        backup_path=VICTORS_JSON_PATH
+    ) as vec_db:
+        # 添加向量（overwrite=True 会自动覆盖已存在的同模型向量）
+        vec_db.add_vectors(
+            vectors_dict=emotion_vectors,
+            model_id=model_id,
+            layer_idx=layer_idx,
+            sample_count=samples_per_emotion,
+            overwrite=True
+        )
+        
+        # 打印统计信息
+        stats = vec_db.get_stats()
+        print("\n" + "="*60)
+        print("保存完成！")
+        print("="*60)
+        print(f"向量数据库：{VECTOR_DB_PATH}")
+        print(f"元数据文件：{META_DATA_PATH}")
+        print(f"JSON 备份：{VICTORS_JSON_PATH}")
+        print(f"模型标识：{model_id}")
+        print(f"向量维度：{hidden_dim}")
+        print(f"情绪数量：{stats['total_vectors']}")
 
 
 def main():
