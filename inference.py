@@ -79,8 +79,17 @@ def load_emotion_vectors(model: AutoModelForCausalLM, model_id: str) -> Dict[str
     print("加载预计算的情绪向量")
     print("="*60)
     
-    hidden_dim = model.config.hidden_size
-    
+    if hasattr(model.config, "hidden_size"):
+        hidden_dim = model.config.hidden_size
+    elif hasattr(model.config, "decoder") and hasattr(model.config.decoder, "hidden_size"):
+        hidden_dim = model.config.decoder.hidden_size
+    elif hasattr(model.config, "text_config") and hasattr(model.config.text_config, "hidden_size"):
+        hidden_dim = model.config.text_config.hidden_size
+    elif hasattr(model.config, "llm_config") and hasattr(model.config.llm_config, "hidden_size"):
+        hidden_dim = model.config.llm_config.hidden_size
+    else:
+        raise AttributeError("无法找到 hidden_size 参数，请检查模型配置")
+
     # 使用上下文管理器加载数据库
     with EmotionVectorDB(
         vector_dim=hidden_dim,

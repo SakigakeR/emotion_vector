@@ -111,8 +111,11 @@ class EmotionIntervention:
         if self.hook is not None:
             print("⚠️ 警告：干预钩子已注册，先移除旧钩子")
             self.remove()
-        
-        self.hook = model.model.layers[self.layer_idx].register_forward_hook(self.hook_fn)
+        if hasattr(model.model,"layers"):
+            target_layer = model.model.layers[self.layer_idx]
+        elif hasattr(model.model,"language_model"):
+            target_layer = model.model.language_model.layers[self.layer_idx]
+        self.hook = target_layer.register_forward_hook(self.hook_fn)
         print(f"✅ 已注册情绪干预钩子到第 {self.layer_idx} 层")
     
     def remove(self) -> None:
@@ -205,8 +208,11 @@ class MultiEmotionIntervention:
         """注册干预钩子"""
         if not self.interventions:
             raise ValueError("❌ 没有添加任何情绪向量")
-        
-        self.hook = model.model.layers[self.layer_idx].register_forward_hook(self.hook_fn)
+        if hasattr(model.model,"layers"):
+            target_layer = model.model.layers[self.layer_idx]
+        elif hasattr(model.model,"language_model"):
+            target_layer = model.model.language.layers[self.layer_idx]
+        self.hook = target_layer.register_forward_hook(self.hook_fn)
         print(f"✅ 已注册多情绪干预钩子，共 {len(self.interventions)} 个情绪")
     
     def remove(self) -> None:

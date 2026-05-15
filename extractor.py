@@ -119,9 +119,12 @@ def get_model_activations(
         
         #  detach 并移到 CPU 以节省显存
         activations.append(hidden_states.detach().cpu())
-    
+    print(dir(model.model))
     # 注册钩子（针对 transformer 层）
-    target_layer = model.model.layers[layer_idx]
+    if hasattr(model.model,"layers"):
+        target_layer = model.model.layers[layer_idx]
+    elif hasattr(model.model,"language_model"):
+        target_layer = model.model.language_model.layers[layer_idx]
     hook = target_layer.register_forward_hook(hook_fn)
     hooks.append(hook)
     

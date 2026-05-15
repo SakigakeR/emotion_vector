@@ -72,7 +72,19 @@ def load_model_and_tokenizer(model_name: str) -> tuple:
         )
     
     model.eval()
-    print(f"✅ 模型加载完成，隐藏层维度：{model.config.hidden_size}")
+    # 通用适配方案
+    if hasattr(model.config, "hidden_size"):
+        hidden_size = model.config.hidden_size
+    elif hasattr(model.config, "decoder") and hasattr(model.config.decoder, "hidden_size"):
+        hidden_size = model.config.decoder.hidden_size
+    elif hasattr(model.config, "text_config") and hasattr(model.config.text_config, "hidden_size"):
+        hidden_size = model.config.text_config.hidden_size
+    elif hasattr(model.config, "llm_config") and hasattr(model.config.llm_config, "hidden_size"):
+        hidden_size = model.config.llm_config.hidden_size
+    else:
+       raise AttributeError("无法找到 hidden_size 参数，请检查模型配置")
+
+    print(f"✅ 模型加载完成，隐藏层维度：{hidden_size}")
     
     return tokenizer, model
 
@@ -217,7 +229,18 @@ def save_emotion_vectors(
     print("保存情绪向量")
     print("="*60)
     
-    hidden_dim = model.config.hidden_size
+        
+    if hasattr(model.config, "hidden_size"):
+        hidden_dim = model.config.hidden_size
+    elif hasattr(model.config, "decoder") and hasattr(model.config.decoder, "hidden_size"):
+        hidden_dim = model.config.decoder.hidden_size
+    elif hasattr(model.config, "text_config") and hasattr(model.config.text_config, "hidden_size"):
+        hidden_dim = model.config.text_config.hidden_size
+    elif hasattr(model.config, "llm_config") and hasattr(model.config.llm_config, "hidden_size"):
+        hidden_dim = model.config.llm_config.hidden_size
+    else:
+        raise AttributeError("无法找到 hidden_size 参数，请检查模型配置")
+
     
     # 使用上下文管理器，自动处理加载和保存
     with EmotionVectorDB(

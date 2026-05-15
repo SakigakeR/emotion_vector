@@ -187,7 +187,19 @@ def main():
             from transformers import AutoConfig
             
             config = AutoConfig.from_pretrained(MODEL_NAME)
-            vec_db = EmotionVectorDB(vector_dim=config.hidden_size)
+            # 通用适配方案
+            if hasattr(config, "hidden_size"):
+                hidden_size = config.hidden_size
+            elif hasattr(config, "decoder") and hasattr(config.decoder, "hidden_size"):
+                hidden_size = config.decoder.hidden_size
+            elif hasattr(config, "text_config") and hasattr(config.text_config, "hidden_size"):
+                hidden_size = config.text_config.hidden_size
+            elif hasattr(config, "llm_config") and hasattr(config.llm_config, "hidden_size"):
+                hidden_size = config.llm_config.hidden_size
+            else:
+                raise AttributeError("无法找到 hidden_size 参数，请检查模型配置")
+
+            vec_db = EmotionVectorDB(vector_dim=hidden_size)
             stats = vec_db.get_stats()
             print(f"  - 向量数量：{stats['total_vectors']}")
             print(f"  - 情绪类型：{', '.join(stats['emotions'])}")
