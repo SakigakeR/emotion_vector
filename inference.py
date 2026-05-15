@@ -397,6 +397,10 @@ def main():
         "How are you feeling today?",
         "Tell me about your weekend plans.",
         "What's your favorite season and why?",
+        #### Chinese ####
+        "构想一个人拿起了一杯水，他往水面看去，他看见了什么？",
+        #### Japanese ####
+        "初音ミクを筆頭に有名な合成音声(Voiceroidなど)を紹介してください。",
     ]
     
     # 4. 运行干预实验

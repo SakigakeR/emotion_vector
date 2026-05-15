@@ -119,7 +119,6 @@ def get_model_activations(
         
         #  detach 并移到 CPU 以节省显存
         activations.append(hidden_states.detach().cpu())
-    print(dir(model.model))
     # 注册钩子（针对 transformer 层）
     if hasattr(model.model,"layers"):
         target_layer = model.model.layers[layer_idx]
