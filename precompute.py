@@ -15,7 +15,8 @@ from config import (
     NUM_SAMPLES_PER_EMOTION, NUM_NEUTRAL_SAMPLES,
     INTERVENTION_LAYER, INTERVENTION_STRENGTH,
     VECTOR_DB_PATH, META_DATA_PATH, VICTORS_JSON_PATH,
-    MODEL_ID, USE_4BIT_QUANTIZATION,MAX_NEW_TOKENS
+    MODEL_ID, USE_4BIT_QUANTIZATION,MAX_NEW_TOKENS,
+    GENERATION_TEMPERATURE, GENERATION_TOP_P
 )
 from extractor import (
     create_quantization_config,
@@ -132,8 +133,8 @@ def generate_neutral_stories(
         output = generator(
             input_text,
             max_new_tokens=MAX_NEW_TOKENS,
-            temperature=0.7,
-            top_p=0.95,
+            temperature=GENERATION_TEMPERATURE,
+            top_p=GENERATION_TOP_P,
             do_sample=True
         )
         generated_text = output[0]["generated_text"]
@@ -141,6 +142,7 @@ def generate_neutral_stories(
         story = generated_text[len(input_text):].strip()
         # 清理可能的特殊 token
         story = story.replace("</s>", "").strip()
+        print(story)
         stories.append(story)
     
     print(f"✅ 生成 {len(stories)} 个中性故事完成")

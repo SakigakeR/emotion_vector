@@ -82,6 +82,7 @@ IMPORTANT: Do NOT use the word "{emotion}" or any synonyms. Show the emotion thr
         story = generated_text[len(input_text):].strip()
         # 清理可能的特殊 token
         story = story.replace("</s>", "").strip()
+        print(story)
         stories.append(story)
     
     return stories

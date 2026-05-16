@@ -184,7 +184,13 @@ intervention.remove()
 
 - 正数：增强该情绪表达
 - 负数：抑制该情绪表达
-- 推荐范围：1.0 - 3.0, 4.0 - 5.0 (情绪表达将会极端化)
+- 推荐范围：取决于模型架构和参数量，详见 [`docs/INTERVENTION_GUIDE.md`](docs/INTERVENTION_GUIDE.md)
+
+**重要说明**: 干预强度的选择与以下因素相关：
+- **神经网络层数**: 不同层数的模型需要不同的干预层和强度
+- **任务类型**: 故事创作、对话、情感分析等不同场景需要不同强度
+
+请参考 [`docs/INTERVENTION_GUIDE.md`](docs/INTERVENTION_GUIDE.md) 获取详细的参数建议表。
 
 ## 优化建议
 
