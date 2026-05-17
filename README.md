@@ -25,6 +25,7 @@ emotion_vector/
 ├── inference.py        # 推理脚本：加载向量进行情绪干预
 ├── evaluator.py        # 评估模块：情感分析评估干预效果
 ├── main.py             # 主入口脚本：统一命令行接口
+├── gui.py              # Gradio 图形界面
 ├── requirements.txt    # 项目依赖
 └── PROJECT_README.md   # 本说明文档
 
@@ -108,9 +109,47 @@ python main.py inference
 # 运行评估
 python main.py evaluate
 
+# 启动图形界面
+python main.py gui
+
 # 检查环境
 python main.py check
 ```
+
+### 图形界面 (GUI)
+
+```bash
+# 启动 Gradio 图形界面
+python main.py gui
+# 或
+python gui.py
+```
+
+启动后，界面将在 http://localhost:7860 打开，提供以下功能：
+
+- **系统状态**: 查看向量数据库状态和配置信息
+- **预计算**: 一键运行预计算流程
+- **推理实验**: 输入提示、选择情绪、调整参数进行情绪干预生成
+- **结果对比**: 同时查看原始输出和干预后输出
+
+**⚠️ 重要说明**: GUI 模式**未适配 chat_template**，仅支持**文本补全**模式。如果使用支持对话的模型（如 Instruct/Chat 模型），需要**手动构造 chat_template**作为输入提示。
+
+例如，对于 Mistral-Instruct 模型，需要手动构造如下格式的提示：
+
+```text
+<s>[INST] 请续写以下故事：Once upon a time, there was a little girl... [/INST]
+```
+
+对于 Llama-3-Instruct 模型：
+
+```text
+<|begin_of_text|><|start_header_id|>user<|end_header_id|>
+
+请续写以下故事：Once upon a time...<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+```
+
+建议参考对应模型的官方文档获取正确的 chat_template 格式。
 
 ### 直接使用模块
 

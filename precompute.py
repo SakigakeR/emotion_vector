@@ -56,21 +56,35 @@ def load_model_and_tokenizer(model_name: str) -> tuple:
     # 创建量化配置
     bnb_config = create_quantization_config()
     
+    # 仅加载文本解码模块，不加载视觉模块以节省显存
+    load_kwargs = {
+        "device_map": "auto",
+        "trust_remote_code": True,
+        # 仅加载文本部分，跳过视觉编码器
+        "attn_implementation": "flash_attention_2" if torch.cuda.is_available() else "eager",
+    }
+    
     if bnb_config:
-        print("使用 4 位量化加载模型...")
+        print("使用 4 位量化加载模型（仅文本解码模块）...")
+        load_kwargs["quantization_config"] = bnb_config
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            quantization_config=bnb_config,
-            device_map="auto",
-            trust_remote_code=True
+            **load_kwargs
         )
     else:
-        print("使用全精度加载模型...")
+        print("使用全精度加载模型（仅文本解码模块）...")
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            device_map="auto",
-            trust_remote_code=True
+            **load_kwargs
         )
+    
+    # 如果模型包含视觉模块，显式卸载以释放显存
+    if hasattr(model, "vision_tower"):
+        print("检测到视觉模块，已跳过加载...")
+    if hasattr(model, "vision_model"):
+        print("检测到视觉模型，已跳过加载...")
+    if hasattr(model, "vision_encoder"):
+        print("检测到视觉编码器，已跳过加载...")
     
     model.eval()
     # 通用适配方案

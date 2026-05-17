@@ -25,5 +25,8 @@ evaluate>=0.4.1
 # 进度条
 tqdm>=4.65.0
 
+# GUI 界面
+gradio>=4.5.0
+
 # 可选：GPU 版本的 faiss（如果有 CUDA）
 # faiss-gpu>=1.7.4

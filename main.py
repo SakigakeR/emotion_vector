@@ -1,11 +1,12 @@
 """
 情绪向量工程主入口脚本
-提供统一的命令行接口，支持预计算、推理和评估三种模式
+提供统一的命令行接口，支持预计算、推理、评估和 GUI 四种模式
 
 使用方法:
     python main.py precompute    # 预计算情绪向量
     python main.py inference     # 运行推理实验
     python main.py evaluate      # 运行评估
+    python main.py gui           # 启动 Gradio 图形界面
     python main.py --help        # 显示帮助信息
 """
 
@@ -87,6 +88,19 @@ def run_evaluate():
     evaluator_main()
 
 
+def run_gui():
+    """运行 Gradio GUI"""
+    from gui import main as gui_main
+    print_banner()
+    print("\n模式：Gradio 图形界面")
+    print("-"*70)
+    print("\n正在启动 Gradio 服务器...")
+    print("界面将在浏览器中打开")
+    print("-"*70)
+    
+    gui_main()
+
+
 def check_dependencies():
     """检查依赖是否安装"""
     missing = []
@@ -131,6 +145,7 @@ def main():
   python main.py precompute    预计算情绪向量并保存到 FAISS 数据库
   python main.py inference     加载预计算向量进行情绪干预推理
   python main.py evaluate      运行情绪评估演示
+  python main.py gui           启动 Gradio 图形界面
   python main.py check         检查依赖和环境
 
 注意事项:
@@ -142,7 +157,7 @@ def main():
     
     parser.add_argument(
         "mode",
-        choices=["precompute", "inference", "evaluate", "check"],
+        choices=["precompute", "inference", "evaluate", "gui", "check"],
         help="运行模式"
     )
     
@@ -167,6 +182,8 @@ def main():
         run_inference()
     elif args.mode == "evaluate":
         run_evaluate()
+    elif args.mode == "gui":
+        run_gui()
     elif args.mode == "check":
         print("\n✅ 环境检查完成")
         print("\n已安装的依赖:")
