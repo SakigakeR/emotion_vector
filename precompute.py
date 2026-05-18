@@ -124,7 +124,8 @@ def generate_neutral_stories(
     
     # 使用 chat 格式的消息
     messages = [
-        {"role": "user", "content": "Write a story (5-10 sentences) about a character doing a normal daily activity. No strong emotions."}
+        {"role": "user", "content": """Write three different stories (5-10 sentences) about three characters ( different culture and upbringing )
+         doing a normal daily activity in different ages , areas , speech . No strong emotions."""}
     ]
     
     # 使用 chat_template 编码
