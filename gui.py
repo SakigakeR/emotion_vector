@@ -7,6 +7,7 @@ import gradio as gr
 import torch
 from pathlib import Path
 from typing import Dict, List, Optional
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from datetime import datetime
 import json
 
@@ -75,15 +76,16 @@ def get_hidden_size(model):
         raise AttributeError("无法找到 hidden_size 参数")
 
 
-def run_inference(prompt: str, emotion: str, strength: float, temperature: float, max_tokens: int):
-    """运行情绪干预推理"""
-    from transformers import AutoTokenizer, AutoModelForCausalLM
+_model = None
+_tokenizer = None
+
+def load_model_once():
+    """单例加载模型和分词器"""
+    global _model, _tokenizer
     
-    # 检查数据库
-    if not VECTOR_DB_PATH.exists() or not META_DATA_PATH.exists():
-        return "❌ 向量数据库不存在，请先运行预计算模式", "", ""
-    
-    # 加载模型
+    if _model is not None and _tokenizer is not None:
+        return _model, _tokenizer
+
     try:
         print("正在加载模型...")
         tokenizer = AutoTokenizer.from_pretrained(
@@ -111,6 +113,23 @@ def run_inference(prompt: str, emotion: str, strength: float, temperature: float
         
         model.eval()
         print("✅ 模型加载完成")
+        
+        _model = model
+        _tokenizer = tokenizer
+        return _model, _tokenizer
+    except Exception as e:
+        raise e
+
+def run_inference(prompt: str, emotion: str, strength: float, temperature: float, max_tokens: int):
+    """运行情绪干预推理"""
+    
+    # 检查数据库
+    if not VECTOR_DB_PATH.exists() or not META_DATA_PATH.exists():
+        return "❌ 向量数据库不存在，请先运行预计算模式", "", ""
+    
+    # 加载模型
+    try:
+        model, tokenizer = load_model_once()
     except Exception as e:
         return f"❌ 模型加载失败：{str(e)}", "", ""
     
